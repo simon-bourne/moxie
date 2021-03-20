@@ -12,3 +12,36 @@ custom_html_element! {
         }
     }
 }
+
+custom_html_element! {
+    fast_tree_view("fast-tree-view")
+
+    categories { Flow }
+    
+    children {
+        // TODO: Custom content categories
+        categories {
+            Flow
+        }
+    }
+}
+
+custom_html_element! {
+    fast_tree_item("fast-tree-item")
+
+    categories { Flow }
+    
+    children {
+        // TODO: Custom content categories
+        categories {
+            Flow
+        }
+    }
+
+    attributes {
+        /// Is this tree item expanded?
+        expanded(bool)
+        /// Is this tree item selected?
+        selected(bool)
+    }
+}
