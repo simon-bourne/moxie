@@ -53,6 +53,7 @@ watch --clear
     -x build-dom-counter-fn
     -x build-dom-counter-struct
     -x build-dom-dom-builder
+    -x build-dom-microsoft-fast
     -x build-dom-todo
     -x build-dom-hacking
     -x test-prettiest
@@ -62,6 +63,7 @@ watch --clear
     -x test-dom-counter-fn
     -x test-dom-counter-struct
     -x test-dom-dom-builder
+    -x test-dom-microsoft-fast
     -x test-dom-todo
     -x test-dom-lib-browser
     -x test-dom-drivertest
@@ -77,6 +79,7 @@ build-dom-lib = "wa-pack-build dom"
 build-dom-counter-fn = "wa-pack-build dom/examples/counter_fn"
 build-dom-counter-struct = "wa-pack-build dom/examples/counter_struct"
 build-dom-dom-builder = "wa-pack-build dom/examples/dom_builder"
+build-dom-microsoft-fast = "wa-pack-build dom/examples/microsoft_fast"
 build-dom-hacking = "wa-pack-build dom/examples/hacking"
 build-dom-todo = "wa-pack-build dom/examples/todo"
 
@@ -86,6 +89,7 @@ test-prettiest = "wa-test dom/prettiest"
 test-dom-counter-fn = "wa-test dom/examples/counter_fn"
 test-dom-counter-struct = "wa-test dom/examples/counter_struct"
 test-dom-dom-builder = "wa-test dom/examples/dom_builder"
+test-dom-microsoft-fast = "wa-test dom/examples/microsoft_fast"
 test-dom-lib-browser = "wa-test dom"
 test-dom-drivertest = "wa-test dom/examples/drivertest"
 test-dom-hacking = "wa-test dom/examples/hacking"

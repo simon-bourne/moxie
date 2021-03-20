@@ -38,6 +38,7 @@ members = [
     "dom/examples/counter_fn",
     "dom/examples/counter_struct",
     "dom/examples/dom_builder",
+    "dom/examples/microsoft_fast",
     "dom/examples/drivertest",
     "dom/examples/hacking",
     "dom/examples/ssr",

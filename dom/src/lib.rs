@@ -9,6 +9,7 @@ mod macros;
 
 pub(crate) mod cached_node;
 pub mod elements;
+pub mod microsoft_fast;
 pub mod embed;
 pub mod interfaces;
 pub mod text;
