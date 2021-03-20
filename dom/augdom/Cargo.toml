@@ -63,6 +63,8 @@ features = [
     "CloseEventInit",
     "CompositionEvent",
     "CompositionEventInit",
+    "CustomEvent",
+    "CustomEventInit",
     "DeviceMotionEvent",
     "DeviceMotionEventInit",
     "DeviceOrientationEvent",

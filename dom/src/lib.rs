@@ -9,9 +9,9 @@ mod macros;
 
 pub(crate) mod cached_node;
 pub mod elements;
-pub mod microsoft_fast;
 pub mod embed;
 pub mod interfaces;
+pub mod microsoft_fast;
 pub mod text;
 
 /// A module for glob-importing the most commonly used moxie-dom items.

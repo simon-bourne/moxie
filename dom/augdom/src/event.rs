@@ -527,6 +527,13 @@ event_ty! {
 }
 
 event_ty! {
+    /// TODO: Docs
+    CustomEvent,
+    "selected-change", // TODO: This definitely doesn't belong in this module!!!
+    sys::Event // TODO: Just a guess - what should this be?
+}
+
+event_ty! {
     /// A pointing device button is clicked twice on an element. [MDN documentation][mdn]
     ///
     /// [mdn]: https://developer.mozilla.org/en-US/docs/Web/Events/dblclick
