@@ -28,6 +28,6 @@ pub fn boot(root: moxie_dom::raw::sys::Node) {
                     )
                     .child(fast_tree_item().child("Tree item 2")),
             )
-            .child(count)
+            .child(format!("Count of 'selected-change' events on 'Tree item 1 - 1' = {}", count))
     });
 }
