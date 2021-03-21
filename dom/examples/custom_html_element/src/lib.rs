@@ -3,7 +3,7 @@ use moxie_dom::{html_element, interfaces::node::Parent};
 use wasm_bindgen::prelude::wasm_bindgen;
 
 html_element!(
-    <my_custom_element>
+    <my_custom_element["my-custom-element"]>
 
     categories {
         Flow, Palpable

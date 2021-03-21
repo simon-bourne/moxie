@@ -95,7 +95,7 @@ macro_rules! attr_method {
 macro_rules! element {
     (
         $(#[$outer:meta])*
-        <$name:ident>
+        <$name:ident[$text_name:expr]>
         $(categories { $($category:ident),+ })?
         $(children {
             $(tags { $(< $child_tag:ident >),+ })?
@@ -118,7 +118,8 @@ macro_rules! element {
             #[allow(unused)]
             use $crate::interfaces::node::NodeWrapper;
 
-            let elem = moxie::cache(stringify!($name), |ty| {
+            // TODO: Does `text_name` need to match up with `name` somehow?
+            let elem = moxie::cache($text_name, |ty| {
                 $crate::prelude::document().create_element(ty)
             });
             [<$name:camel Builder>] { inner: $crate::macros::__private::cached_node_new(elem) }
@@ -220,10 +221,21 @@ macro_rules! html_element {
         $(#[$outer:meta])*
         <$name:ident>
         $($rem:tt)*
+    ) => {
+        html_element!{
+            $(#[$outer])*
+            <$name[stringify!($name)]>
+            $($rem)*
+        }
+    };
+    (
+        $(#[$outer:meta])*
+        <$name:ident[$text_name:expr]>
+        $($rem:tt)*
     ) => { $crate::macros::__private::paste::item! {
         $crate::element! {
             $(#[$outer])*
-            <$name>
+            <$name[$text_name]>
             $($rem)*
         }
 
