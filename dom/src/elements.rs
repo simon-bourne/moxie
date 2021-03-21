@@ -30,7 +30,9 @@ pub mod html {
     };
 }
 
-pub(crate) mod just_all_of_it_ok {
+// TODO: Does this really want to be public?
+/// TODO: Doc
+pub mod all {
     pub use super::{
         embedding::*, forms::*, interactive::*, media::*, metadata::*, scripting::*, sectioning::*,
         table::*, text_content::*, text_semantics::*, *,

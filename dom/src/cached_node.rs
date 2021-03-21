@@ -102,7 +102,7 @@ impl Debug for CachedNode {
 
 #[cfg(test)]
 mod tests {
-    use crate::{elements::just_all_of_it_ok::div, prelude::*};
+    use crate::{elements::all::div, prelude::*};
     use mox::mox;
     use moxie::{runtime::RunLoop, state};
 

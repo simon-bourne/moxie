@@ -168,7 +168,7 @@ macro_rules! element {
             // child tags
             $($(
                 impl $crate::interfaces::node::Parent<
-                    crate::elements::just_all_of_it_ok::[<$child_tag:camel>]>
+                    $crate::elements::all::[<$child_tag:camel>]>
                 for [< $name:camel Builder >] {}
             )+)?
 
