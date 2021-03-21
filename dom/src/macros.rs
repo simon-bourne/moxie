@@ -18,6 +18,7 @@ pub mod __private {
 }
 
 /// Compute the name of the HTML attribute from the name of the builder method.
+#[macro_export]
 macro_rules! attr_name {
     (accept_charset) => {
         "accept-charset"
@@ -50,6 +51,7 @@ macro_rules! attr_name {
 
 /// Stamps a *string* attribute method with the provided identifier as the name,
 /// optionally passing docs.
+#[macro_export]
 macro_rules! attr_method {
     (
         $(#[$outer:meta])*
@@ -58,9 +60,9 @@ macro_rules! attr_method {
         $(#[$outer])*
         $publicity fn $attr(self, to_set: bool) -> Self {
             #[allow(unused)]
-            use crate::interfaces::element::ElementBuilder;
+            use $crate::interfaces::element::ElementBuilder;
             if to_set {
-                self.attribute(attr_name!($attr), "")
+                self.attribute($crate::attr_name!($attr), "")
             } else {
                 self
             }
@@ -70,7 +72,7 @@ macro_rules! attr_method {
         $(#[$outer:meta])*
         $publicity:vis $attr:ident
     ) => {
-        attr_method! {
+        $crate::attr_method! {
             $(#[$outer])*
             $publicity $attr(impl ToString)
         }
@@ -82,8 +84,8 @@ macro_rules! attr_method {
         $(#[$outer])*
         $publicity fn $attr(self, to_set: $arg) -> Self {
             #[allow(unused)]
-            use crate::interfaces::element::ElementBuilder;
-            self.attribute(attr_name!($attr), to_set.to_string())
+            use $crate::interfaces::element::ElementBuilder;
+            self.attribute($crate::attr_name!($attr), to_set.to_string())
         }
     };
 }
@@ -179,7 +181,7 @@ macro_rules! element {
 
         // attributes
         $(impl [< $name:camel Builder >] {
-            $(attr_method! {
+            $($crate::attr_method! {
                 $(#[$attr_meta])*
                 pub $attr $(($attr_ty))?
             })*
@@ -233,6 +235,7 @@ macro_rules! html_element {
     }};
 }
 
+// TODO: Make this public? + tests
 macro_rules! only_text_children {
     (<$name:ident>) => {
         paste::item! {
