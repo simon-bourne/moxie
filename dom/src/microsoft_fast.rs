@@ -60,9 +60,23 @@ event_ty! {
 
 event_ty! {
     /// TODO: Docs
-    ExpandedChangeEvent,
+    ExpandChangeEvent,
     "expanded-change",
     sys::CustomEvent
+}
+
+impl ExpandChangeEvent {
+    /// TODO: Doc
+    pub fn is_expanded(&self) -> bool {
+        todo!("Read from js object")
+    }
+}
+
+impl SelectedChangeEvent {
+    /// TODO: Doc
+    pub fn is_selected(&self) -> bool {
+        todo!("Read from js object")
+    }
 }
 
 macro_rules! event_handlers{
@@ -82,5 +96,5 @@ macro_rules! event_handlers{
 
 event_handlers!(fast_tree_item{
     on_selected_change<SelectedChangeEvent>,
-    on_expanded_change<ExpandedChangeEvent>
+    on_expanded_change<ExpandChangeEvent>
 });
