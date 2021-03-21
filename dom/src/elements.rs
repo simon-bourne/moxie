@@ -30,15 +30,6 @@ pub mod html {
     };
 }
 
-// TODO: Does this really want to be public?
-/// TODO: Doc
-pub mod all {
-    pub use super::{
-        embedding::*, forms::*, interactive::*, media::*, metadata::*, scripting::*, sectioning::*,
-        table::*, text_content::*, text_semantics::*, *,
-    };
-}
-
 pub mod embedding;
 pub mod forms;
 pub mod interactive;

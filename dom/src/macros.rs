@@ -1,19 +1,30 @@
-/// Dependencies used by macros
+// Dependencies used by macros
 #[doc(hidden)]
 pub mod __private {
-    pub use paste;
     pub use crate::cached_node::CachedNode;
-    pub use augdom;
     pub use crate::interfaces::node::sealed::Memoized;
-
-    // TODO: Are these functions the best way to access private methods?
-    // TODO: Do we need a topo::nested attr on this?
-    pub fn cached_node_new(node: augdom::Node) -> CachedNode {
-        CachedNode::new(node)
+    pub use paste;
+    pub mod just_all_of_it_ok {
+        pub use crate::elements::{
+            embedding::*, forms::*, interactive::*, media::*, metadata::*, scripting::*,
+            sectioning::*, table::*, text_content::*, text_semantics::*, *,
+        };
     }
 
-    pub fn cached_node_remove_trailing_children(node: &CachedNode) {
-        node.remove_trailing_children()
+    // TODO: Do we need a topo::nested attr on this? I don't *think* so.
+    pub fn cache_elem(name: &str) -> CachedNode {
+        #[allow(unused)]
+        use crate::interfaces::node::NodeWrapper;
+        #[allow(unused)]
+        use augdom::Dom;
+
+        let elem = moxie::cache(name, |ty| crate::prelude::document().create_element(ty));
+
+        CachedNode::new(elem)
+    }
+
+    pub fn remove_trailing_children(node: &impl Memoized) {
+        node.node().remove_trailing_children()
     }
 }
 
@@ -106,23 +117,14 @@ macro_rules! element {
             $attr:ident $(( $attr_ty:ty ))?
         )*})?
     ) => { $crate::macros::__private::paste::item! {
+
+        // TODO: `topo` hygeine? Can we move it onto `cache_elem` safely?
         $(#[$outer])*
-        
-        // TODO: `topo` hygeine?
         ///
         /// A function for creating a builder which will accept attributes and produce the element.
         #[topo::nested]
         pub fn $name() -> [<$name:camel Builder>] {
-            #[allow(unused)]
-            use $crate::macros::__private::augdom::Dom;
-            #[allow(unused)]
-            use $crate::interfaces::node::NodeWrapper;
-
-            // TODO: Does `text_name` need to match up with `name` somehow?
-            let elem = moxie::cache($text_name, |ty| {
-                $crate::prelude::document().create_element(ty)
-            });
-            [<$name:camel Builder>] { inner: $crate::macros::__private::cached_node_new(elem) }
+            [<$name:camel Builder>] { inner: $crate::macros::__private::cache_elem($text_name) }
         }
 
         $(#[$outer])*
@@ -150,8 +152,7 @@ macro_rules! element {
 
             /// Initialize the element with all of the attributes so far.
             fn build(self) -> [<$name:camel>] {
-                use $crate::macros::__private::Memoized;
-                $crate::macros::__private::cached_node_remove_trailing_children(self.node());
+                $crate::macros::__private::remove_trailing_children(&self);
 
                 [<$name:camel>] { inner: self.inner }
             }
@@ -168,7 +169,7 @@ macro_rules! element {
             // child tags
             $($(
                 impl $crate::interfaces::node::Parent<
-                    $crate::elements::all::[<$child_tag:camel>]>
+                    $crate::macros::__private::just_all_of_it_ok::[<$child_tag:camel>]>
                 for [< $name:camel Builder >] {}
             )+)?
 
@@ -213,6 +214,7 @@ macro_rules! element {
 }
 
 // TODO: Move to lib.rs?
+// TODO: Much more detailed docs
 /// Define an HTML element type, which is essentially an `element!` with the
 /// `HtmlElementBuilder` and `GlobalEventHandler` traits.
 #[macro_export]
