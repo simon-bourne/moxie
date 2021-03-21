@@ -3,9 +3,9 @@
 
 #![deny(clippy::all, missing_docs)]
 
-/// Internal macros for stamping out types to match stringly-typed web APIs.
+/// Macros for stamping out types to match stringly-typed web APIs.
 #[macro_use]
-mod macros;
+pub mod macros;
 
 pub(crate) mod cached_node;
 pub mod elements;

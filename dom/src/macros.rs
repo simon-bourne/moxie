@@ -1,3 +1,22 @@
+/// Dependencies used by macros
+#[doc(hidden)]
+pub mod __private {
+    pub use paste;
+    pub use crate::cached_node::CachedNode;
+    pub use augdom;
+    pub use crate::interfaces::node::sealed::Memoized;
+
+    // TODO: Are these functions the best way to access private methods?
+    // TODO: Do we need a topo::nested attr on this?
+    pub fn cached_node_new(node: augdom::Node) -> CachedNode {
+        CachedNode::new(node)
+    }
+
+    pub fn cached_node_remove_trailing_children(node: &CachedNode) {
+        node.remove_trailing_children()
+    }
+}
+
 /// Compute the name of the HTML attribute from the name of the builder method.
 macro_rules! attr_name {
     (accept_charset) => {
@@ -70,6 +89,7 @@ macro_rules! attr_method {
 }
 
 /// Define an element type.
+#[macro_export]
 macro_rules! element {
     (
         $(#[$outer:meta])*
@@ -83,21 +103,23 @@ macro_rules! element {
             $(#[$attr_meta:meta])*
             $attr:ident $(( $attr_ty:ty ))?
         )*})?
-    ) => { paste::item! {
+    ) => { $crate::macros::__private::paste::item! {
         $(#[$outer])*
+        
+        // TODO: `topo` hygeine?
         ///
         /// A function for creating a builder which will accept attributes and produce the element.
         #[topo::nested]
         pub fn $name() -> [<$name:camel Builder>] {
             #[allow(unused)]
-            use augdom::Dom;
+            use $crate::macros::__private::augdom::Dom;
             #[allow(unused)]
-            use crate::interfaces::node::NodeWrapper;
+            use $crate::interfaces::node::NodeWrapper;
 
             let elem = moxie::cache(stringify!($name), |ty| {
                 $crate::prelude::document().create_element(ty)
             });
-            [<$name:camel Builder>] { inner: crate::cached_node::CachedNode::new(elem) }
+            [<$name:camel Builder>] { inner: $crate::macros::__private::cached_node_new(elem) }
         }
 
         $(#[$outer])*
@@ -105,11 +127,11 @@ macro_rules! element {
         /// A type for initializing the element's attributes before calling `build`.
         #[must_use = "needs to be built"]
         pub struct [<$name:camel Builder>] {
-            inner: crate::cached_node::CachedNode,
+            inner: $crate::macros::__private::CachedNode,
         }
 
-        impl crate::interfaces::element::ElementBuilder for [<$name:camel Builder>] {}
-        impl crate::interfaces::node::NodeWrapper for [<$name:camel Builder>] {}
+        impl $crate::interfaces::element::ElementBuilder for [<$name:camel Builder>] {}
+        impl $crate::interfaces::node::NodeWrapper for [<$name:camel Builder>] {}
 
         impl $crate::interfaces::node::NodeBuilder for [<$name:camel>] {
             type Target = Self;
@@ -125,15 +147,15 @@ macro_rules! element {
 
             /// Initialize the element with all of the attributes so far.
             fn build(self) -> [<$name:camel>] {
-                use crate::interfaces::node::sealed::Memoized;
-                self.node().remove_trailing_children();
+                use $crate::macros::__private::Memoized;
+                $crate::macros::__private::cached_node_remove_trailing_children(self.node());
 
                 [<$name:camel>] { inner: self.inner }
             }
         }
 
-        impl crate::interfaces::node::sealed::Memoized for [<$name:camel Builder>] {
-            fn node(&self) -> &crate::cached_node::CachedNode {
+        impl $crate::macros::__private::Memoized for [<$name:camel Builder>] {
+            fn node(&self) -> &$crate::macros::__private::CachedNode {
                 &self.inner
             }
         }
@@ -142,16 +164,16 @@ macro_rules! element {
         $(
             // child tags
             $($(
-                impl crate::interfaces::node::Parent<
+                impl $crate::interfaces::node::Parent<
                     crate::elements::just_all_of_it_ok::[<$child_tag:camel>]>
                 for [< $name:camel Builder >] {}
             )+)?
 
             // child categories
             $($(
-                impl<Child> crate::interfaces::node::Parent<Child>
+                impl<Child> $crate::interfaces::node::Parent<Child>
                 for [< $name:camel Builder >]
-                where Child: crate::interfaces::content_categories::[<$child_category Content>] {}
+                where Child: $crate::interfaces::content_categories::[<$child_category Content>] {}
             )+)?
         )?
 
@@ -168,44 +190,46 @@ macro_rules! element {
         /// The initialized element, ready to be bound to a parent.
         #[must_use = "needs to be bound to a parent"]
         pub struct [<$name:camel>] {
-            inner: crate::cached_node::CachedNode,
+            inner: $crate::macros::__private::CachedNode,
         }
 
-        impl crate::interfaces::node::NodeWrapper for [<$name:camel>] {}
-        impl crate::interfaces::node::sealed::Memoized for [<$name:camel>] {
-            fn node(&self) -> &crate::cached_node::CachedNode {
+        impl $crate::interfaces::node::NodeWrapper for [<$name:camel>] {}
+        impl $crate::macros::__private::Memoized for [<$name:camel>] {
+            fn node(&self) -> &$crate::macros::__private::CachedNode {
                 &self.inner
             }
         }
-        impl crate::interfaces::element::Element for [<$name:camel>] {}
+        impl $crate::interfaces::element::Element for [<$name:camel>] {}
 
         // content categories
         $($(
-            impl crate::interfaces::content_categories::[<$category Content>]
+            impl $crate::interfaces::content_categories::[<$category Content>]
             for [< $name:camel >] {}
         )+)?
     }};
 }
 
+// TODO: Move to lib.rs?
 /// Define an HTML element type, which is essentially an `element!` with the
 /// `HtmlElementBuilder` and `GlobalEventHandler` traits.
+#[macro_export]
 macro_rules! html_element {
     (
         $(#[$outer:meta])*
         <$name:ident>
         $($rem:tt)*
-    ) => { paste::item! {
-        element! {
+    ) => { $crate::macros::__private::paste::item! {
+        $crate::element! {
             $(#[$outer])*
             <$name>
             $($rem)*
         }
 
-        impl crate::interfaces::html_element::HtmlElementBuilder for [<$name:camel Builder>] {}
-        impl crate::interfaces::global_events::GlobalEventHandler for [<$name:camel Builder>] {}
+        impl $crate::interfaces::html_element::HtmlElementBuilder for [<$name:camel Builder>] {}
+        impl $crate::interfaces::global_events::GlobalEventHandler for [<$name:camel Builder>] {}
 
-        impl<E> crate::interfaces::event_target::EventTarget<E> for [<$name:camel Builder>]
-        where E: crate::interfaces::global_events::GlobalEvent {}
+        impl<E> $crate::interfaces::event_target::EventTarget<E> for [<$name:camel Builder>]
+        where E: $crate::interfaces::global_events::GlobalEvent {}
     }};
 }
 
