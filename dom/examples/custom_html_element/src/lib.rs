@@ -1,5 +1,10 @@
 // TODO: `topo` hygeine
-use moxie_dom::{prelude::state, elements::html::{div, p}, html_element, interfaces::node::Parent};
+use moxie_dom::{
+    elements::html::{div, p},
+    html_element,
+    interfaces::node::Parent,
+    prelude::state,
+};
 use wasm_bindgen::prelude::wasm_bindgen;
 
 html_element! {

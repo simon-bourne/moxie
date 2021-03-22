@@ -5,9 +5,7 @@ use crate::Node;
 #[cfg(feature = "webdom")]
 use {
     crate::webdom,
-    std::{
-        default::Default,
-    },
+    std::default::Default,
     wasm_bindgen::{prelude::*, JsCast},
     web_sys as sys,
 };
@@ -95,8 +93,8 @@ impl Drop for EventHandle {
 #[doc(hidden)]
 /// Macro implentation details
 pub mod __private {
-    pub use prettiest::Pretty;
     pub use paste::paste;
+    pub use prettiest::Pretty;
     pub use wasm_bindgen::{prelude::*, JsCast};
     pub use web_sys as sys;
 }
