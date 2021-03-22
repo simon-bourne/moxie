@@ -10,6 +10,7 @@ pub mod __private {
             sectioning::*, table::*, text_content::*, text_semantics::*, *,
         };
     }
+    pub use augdom::custom_event;
 
     // TODO: Do we need a topo::nested attr on this? I don't *think* so.
     pub fn cache_elem(name: &str) -> CachedNode {
@@ -116,6 +117,10 @@ macro_rules! element {
             $(#[$attr_meta:meta])*
             $attr:ident $(( $attr_ty:ty ))?
         )*})?
+        $(custom_events {$(
+            $(#[$event_meta:meta])*
+            $event_type:ident [$event_ty_str:expr]
+        )*})?
     ) => { $crate::macros::__private::paste::item! {
 
         // TODO: `topo` hygeine? Can we move it onto `cache_elem` safely?
@@ -210,6 +215,27 @@ macro_rules! element {
             impl $crate::interfaces::content_categories::[<$category Content>]
             for [< $name:camel >] {}
         )+)?
+
+        // custom events
+        $(
+            $(
+                // TODO: Where should docs meta items go? On this?
+                $crate::macros::__private::custom_event!(
+                    $(#[$event_meta])*[<$event_type:camel>], $event_ty_str
+                );
+
+                // TODO: Should we put generated classes in a namespace?
+                impl [<$name:camel Builder>] {
+                    /// Set an event handler
+                    pub fn [<on_ $event_type>](self, callback: impl FnMut([<$event_type:camel>]) + 'static) -> Self {
+                        use $crate::interfaces::event_target::EventTarget;
+                        self.on(callback)
+                    }
+                }
+
+                impl $crate::interfaces::event_target::EventTarget<[<$event_type:camel>]> for [<$name:camel Builder>] {}
+            )*
+        )?
     }};
 }
 

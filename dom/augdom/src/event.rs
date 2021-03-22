@@ -5,11 +5,8 @@ use crate::Node;
 #[cfg(feature = "webdom")]
 use {
     crate::webdom,
-    prettiest::Pretty,
     std::{
         default::Default,
-        fmt::{Debug, Formatter, Result as FmtResult},
-        ops::{Deref, DerefMut},
     },
     wasm_bindgen::{prelude::*, JsCast},
     web_sys as sys,
@@ -95,7 +92,36 @@ impl Drop for EventHandle {
     }
 }
 
+#[doc(hidden)]
+/// Macro implentation details
+pub mod __private {
+    pub use prettiest::Pretty;
+    pub use paste::paste;
+    pub use wasm_bindgen::{prelude::*, JsCast};
+    pub use web_sys as sys;
+}
+
+/// Define a custom event. This will define a 2 structs, one for the javascript event type and an event builder.
+/// For example `custom_event!(SelectedChange, "selected-change")` will define:
+///
+/// ```
+/// struct SelectedChange(web_sys::CustomEvent);
+/// struct SelectedChangeBuilder{ /* fields omitted */ }
+/// ```
+#[macro_export]
+macro_rules! custom_event {
+    ($(#[$attr:meta])* $name:ident, $ty_str:expr) => {
+        $crate::event_ty!(
+            $(#[$attr])*
+            $name,
+            $ty_str,
+            sys::CustomEvent);
+    }
+}
+
+/// TODO: Doc
 #[cfg(not(feature = "webdom"))]
+#[macro_export]
 macro_rules! event_ty {
     ($(#[$attr:meta])* $name:ident, $ty_str:expr, $parent_ty:ty) => {
         $(#[$attr])*
@@ -108,7 +134,10 @@ macro_rules! event_ty {
     };
 }
 
+/// TODO: Doc
 #[cfg(feature = "webdom")]
+// TODO: Is there any way of not exporting this?
+#[macro_export]
 macro_rules! event_ty {
     (
         $(#[$attr:meta])* $name:ident,
@@ -122,47 +151,47 @@ macro_rules! event_ty {
         /// A builder for events.
         pub struct $builder($init_ty);
 
-        impl AsRef<web_sys::Event> for $name {
-            fn as_ref(&self) -> &web_sys::Event {
+        impl AsRef<$crate::event::__private::sys::Event> for $name {
+            fn as_ref(&self) -> &$crate::event::__private::sys::Event {
                 self.0.as_ref()
             }
         }
 
-        impl AsRef<JsValue> for $name {
-            fn as_ref(&self) -> &JsValue {
+        impl AsRef<$crate::event::__private::JsValue> for $name {
+            fn as_ref(&self) -> &$crate::event::__private::JsValue {
                 self.0.as_ref()
             }
         }
 
-        impl std::ops::Deref for $name {
+        impl ::std::ops::Deref for $name {
             type Target = $parent_ty;
             fn deref(&self) -> &Self::Target {
                 &self.0
             }
         }
 
-        impl JsCast for $name {
-            fn instanceof(val: &JsValue) -> bool {
-                <$parent_ty as JsCast>::instanceof(val)
+        impl $crate::event::__private::JsCast for $name {
+            fn instanceof(val: &$crate::event::__private::JsValue) -> bool {
+                <$parent_ty as $crate::event::__private::JsCast>::instanceof(val)
             }
 
-            fn unchecked_from_js(val: JsValue) -> Self {
-                $name(<$parent_ty as JsCast>::unchecked_from_js(val))
+            fn unchecked_from_js(val: $crate::event::__private::JsValue) -> Self {
+                $name(<$parent_ty as $crate::event::__private::JsCast>::unchecked_from_js(val))
             }
 
-            fn unchecked_from_js_ref(_val: &JsValue) -> &Self {
+            fn unchecked_from_js_ref(_val: &$crate::event::__private::JsValue) -> &Self {
                 unimplemented!()
             }
         }
 
-        impl Event for $name {
+        impl $crate::event::Event for $name {
             const NAME: &'static str = $ty_str;
             type Builder = $builder;
         }
 
-        impl Debug for $name {
-            fn fmt(&self, f: &mut Formatter) -> FmtResult {
-                self.0.pretty().fmt(f)
+        impl ::std::fmt::Debug for $name {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                $crate::event::__private::Pretty::pretty(&self.0).fmt(f)
             }
         }
 
@@ -172,14 +201,15 @@ macro_rules! event_ty {
             }
         }
 
-        impl EventBuilder for $builder {
+        impl $crate::event::EventBuilder for $builder {
             type Output = $name;
             fn build(&mut self) -> $name {
+                use $crate::event::Event;
                 $name(($name::NAME, &mut self.0).build())
             }
         }
 
-        impl Deref for $builder {
+        impl ::std::ops::Deref for $builder {
             type Target = $init_ty;
             fn deref(&self) -> &Self::Target {
                 &self.0
@@ -187,18 +217,18 @@ macro_rules! event_ty {
         }
 
         // TODO delete this impl and make typed event builders of our own so calls can be chained
-        impl DerefMut for $builder {
+        impl ::std::ops::DerefMut for $builder {
             fn deref_mut(&mut self) -> &mut Self::Target {
                 &mut self.0
             }
         }
     };
-    ($(#[$attr:meta])* $name:ident, $ty_str:expr, sys::$parent_ty:ty) => {paste::paste! {
-        event_ty! {
+    ($(#[$attr:meta])* $name:ident, $ty_str:expr, sys::$parent_ty:ty) => {$crate::event::__private::paste! {
+        $crate::event_ty! {
             $(#[$attr])* $name, $ty_str,
-            sys::$parent_ty,
+            $crate::event::__private::sys::$parent_ty,
             [<$name Builder>],
-            sys::[<$parent_ty Init>]
+            $crate::event::__private::sys::[<$parent_ty Init>]
         }
     }};
 }
@@ -234,6 +264,7 @@ impl_event_builder_for_dict![
     BlobEvent,
     CloseEvent,
     CompositionEvent,
+    CustomEvent,
     DeviceMotionEvent,
     DeviceOrientationEvent,
     DragEvent,
