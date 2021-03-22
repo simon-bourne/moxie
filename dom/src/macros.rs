@@ -12,7 +12,6 @@ pub mod __private {
     }
     pub use augdom::custom_event;
 
-    // TODO: Do we need a topo::nested attr on this? I don't *think* so.
     pub fn cache_elem(name: &str) -> CachedNode {
         #[allow(unused)]
         use crate::interfaces::node::NodeWrapper;
@@ -221,12 +220,10 @@ macro_rules! element {
         // custom events
         $(
             $(
-                // TODO: Where should docs meta items go? On this?
                 $crate::macros::__private::custom_event!(
                     $(#[$event_meta])*[<$event_type:camel>], $event_ty_str
                 );
 
-                // TODO: Should we put generated classes in a namespace?
                 impl [<$name:camel Builder>] {
                     /// Set an event handler
                     pub fn [<on_ $event_type>](self, callback: impl FnMut([<$event_type:camel>]) + 'static) -> Self {
@@ -241,7 +238,6 @@ macro_rules! element {
     }};
 }
 
-// TODO: Move to lib.rs?
 // TODO: Much more detailed docs
 /// Define an HTML element type, which is essentially an `element!` with the
 /// `HtmlElementBuilder` and `GlobalEventHandler` traits.
@@ -277,7 +273,6 @@ macro_rules! html_element {
     }};
 }
 
-// TODO: Make this public? + tests
 macro_rules! only_text_children {
     (<$name:ident>) => {
         paste::item! {
