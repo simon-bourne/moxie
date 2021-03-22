@@ -49,8 +49,8 @@ html_element! {
     }
 
     custom_events {
-        selected_change["selected-change"]
-        expanded_change["expanded-change"]
+        selected-change
+        expanded-change
     }
 }
 

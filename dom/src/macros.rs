@@ -146,7 +146,7 @@ macro_rules! element {
         )*})?
         $(custom_events {$(
             $(#[$event_meta:meta])*
-            $event_type:ident [$event_ty_str:expr]
+            $event_type:ident $(- $event_type_tail:ident)*
         )*})?
     ) => { $crate::macros::__private::paste::item! {
 
@@ -243,16 +243,14 @@ macro_rules! element {
         )+)?
 
         // custom events
-        $(
-            $(
-                $crate::custom_event!(
-                    $name {
-                        $(#[$event_meta])*
-                        $event_type($event_ty_str)
-                    }
-                );
-            )*
-        )?
+        $($(
+            $crate::custom_event!(
+                $name {
+                    $(#[$event_meta])*
+                    [<$event_type $(_ $event_type_tail)*>](stringify!($event_type$(-$event_type_tail)*))
+                }
+            );
+        )*)?
     }};
 }
 
