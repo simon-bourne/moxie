@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-    - user-defined-html-elements
+    - main
   pull_request:
     branches:
     - main
