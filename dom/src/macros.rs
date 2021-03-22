@@ -29,6 +29,7 @@ pub mod __private {
     }
 }
 
+#[doc(hidden)]
 /// Compute the name of the HTML attribute from the name of the builder method.
 #[macro_export]
 macro_rules! attr_name {
@@ -61,6 +62,7 @@ macro_rules! attr_name {
     };
 }
 
+#[doc(hidden)]
 /// Stamps a *string* attribute method with the provided identifier as the name,
 /// optionally passing docs.
 #[macro_export]
@@ -102,6 +104,7 @@ macro_rules! attr_method {
     };
 }
 
+#[doc(hidden)]
 /// Define an element type.
 #[macro_export]
 macro_rules! element {

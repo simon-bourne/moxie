@@ -117,8 +117,8 @@ macro_rules! custom_event {
     }
 }
 
-/// TODO: Doc
 #[cfg(not(feature = "webdom"))]
+#[doc(hidden)]
 #[macro_export]
 macro_rules! event_ty {
     ($(#[$attr:meta])* $name:ident, $ty_str:expr, $parent_ty:ty) => {
@@ -132,9 +132,8 @@ macro_rules! event_ty {
     };
 }
 
-/// TODO: Doc
 #[cfg(feature = "webdom")]
-// TODO: Is there any way of not exporting this?
+#[doc(hidden)]
 #[macro_export]
 macro_rules! event_ty {
     (
