@@ -104,6 +104,31 @@ macro_rules! attr_method {
 }
 
 #[doc(hidden)]
+#[macro_export]
+macro_rules! custom_event {
+    (
+        $tag_name:ident {
+            $(#[$event_meta:meta])*
+            $event_type:ident($event_ty_str:expr)
+        }
+    ) => { $crate::macros::__private::paste::item! {
+        $crate::macros::__private::custom_event!(
+            $(#[$event_meta])*[<$event_type:camel>], $event_ty_str
+        );
+
+        impl [<$tag_name:camel Builder>] {
+            /// Set an event handler
+            pub fn [<on_ $event_type>](self, callback: impl FnMut([<$event_type:camel>]) + 'static) -> Self {
+                use $crate::interfaces::event_target::EventTarget;
+                self.on(callback)
+            }
+        }
+
+        impl $crate::interfaces::event_target::EventTarget<[<$event_type:camel>]> for [<$tag_name:camel Builder>] {}
+    }
+}}
+
+#[doc(hidden)]
 /// Define an element type.
 #[macro_export]
 macro_rules! element {
@@ -220,19 +245,12 @@ macro_rules! element {
         // custom events
         $(
             $(
-                $crate::macros::__private::custom_event!(
-                    $(#[$event_meta])*[<$event_type:camel>], $event_ty_str
-                );
-
-                impl [<$name:camel Builder>] {
-                    /// Set an event handler
-                    pub fn [<on_ $event_type>](self, callback: impl FnMut([<$event_type:camel>]) + 'static) -> Self {
-                        use $crate::interfaces::event_target::EventTarget;
-                        self.on(callback)
+                $crate::custom_event!(
+                    $name {
+                        $(#[$event_meta])*
+                        $event_type($event_ty_str)
                     }
-                }
-
-                impl $crate::interfaces::event_target::EventTarget<[<$event_type:camel>]> for [<$name:camel Builder>] {}
+                );
             )*
         )?
     }};
