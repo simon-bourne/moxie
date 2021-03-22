@@ -7,7 +7,7 @@ use moxie_dom::{
 use wasm_bindgen::prelude::wasm_bindgen;
 
 html_element! {
-    <fast_badge["fast-badge"]>
+    <fast-badge>
 
     categories { Flow }
 
@@ -19,7 +19,7 @@ html_element! {
 }
 
 html_element! {
-    <fast_tree_view["fast-tree-view"]>
+    <fast-tree-view>
 
     categories { Flow }
 
@@ -31,7 +31,7 @@ html_element! {
 }
 
 html_element! {
-    <fast_tree_item["fast-tree-item"]>
+    <fast-tree-item>
 
     categories { Flow }
 

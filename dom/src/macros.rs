@@ -29,6 +29,14 @@ pub mod __private {
 }
 
 #[doc(hidden)]
+#[macro_export]
+macro_rules! name_as_str {
+    ($name:ident $(- $name_tail:ident)*) => {
+        concat!(stringify!($name) $(, "-", stringify!($name_tail))*)
+    }
+}
+
+#[doc(hidden)]
 /// Compute the name of the HTML attribute from the name of the builder method.
 #[macro_export]
 macro_rules! attr_name {
@@ -134,7 +142,7 @@ macro_rules! custom_event {
 macro_rules! element {
     (
         $(#[$outer:meta])*
-        <$name:ident[$text_name:expr]>
+        <$name:ident($text_name:expr)>
         $(categories { $($category:ident),+ })?
         $(children {
             $(tags { $(< $child_tag:ident >),+ })?
@@ -247,7 +255,9 @@ macro_rules! element {
             $crate::custom_event!(
                 $name {
                     $(#[$event_meta])*
-                    [<$event_type $(_ $event_type_tail)*>](stringify!($event_type$(-$event_type_tail)*))
+                    [<$event_type $(_ $event_type_tail)*>] (
+                        $crate::name_as_str!($event_type $(- $event_type_tail)*)
+                    )
                 }
             );
         )*)?
@@ -261,23 +271,25 @@ macro_rules! element {
 macro_rules! html_element {
     (
         $(#[$outer:meta])*
-        <$name:ident>
+        <$name:ident $(- $name_tail:ident)*>
         $($rem:tt)*
-    ) => {
-        html_element!{
+    ) => {$crate::macros::__private::paste::item! {
+        html_element!(
             $(#[$outer])*
-            <$name[stringify!($name)]>
+            < [<$name $(_ $name_tail)*>] (
+                $crate::name_as_str!($name $(- $name_tail)*)
+            )>
             $($rem)*
-        }
-    };
+        );
+    }};
     (
         $(#[$outer:meta])*
-        <$name:ident[$text_name:expr]>
+        <$name:ident($text_name:expr)>
         $($rem:tt)*
     ) => { $crate::macros::__private::paste::item! {
         $crate::element! {
             $(#[$outer])*
-            <$name[$text_name]>
+            <$name($text_name)>
             $($rem)*
         }
 
