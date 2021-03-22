@@ -126,7 +126,6 @@ macro_rules! element {
         )*})?
     ) => { $crate::macros::__private::paste::item! {
 
-        // TODO: `topo` hygeine? Can we move it onto `cache_elem` safely?
         $(#[$outer])*
         ///
         /// A function for creating a builder which will accept attributes and produce the element.

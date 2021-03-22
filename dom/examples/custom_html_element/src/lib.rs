@@ -1,4 +1,3 @@
-// TODO: `topo` hygeine
 use moxie_dom::{
     elements::html::{div, p},
     html_element,

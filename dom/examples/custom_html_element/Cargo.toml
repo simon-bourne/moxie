@@ -15,7 +15,6 @@ crate-type = [ "cdylib" ]
 
 [dependencies]
 mox = { path = "../../../mox" }
-# TODO: Remove topo dependency
 topo = { path = "../../../topo" }
 moxie = { path = "../../.." }
 moxie-dom = { path = "../../" }
