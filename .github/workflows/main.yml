@@ -3,6 +3,7 @@ env:
   # we want the CI results to all be from the same toolchain, so we set it up here.
   RUSTUP_TOOLCHAIN: nightly-2021-01-10
 on:
+  workflow_dispatch:
   push:
     branches:
     - user-defined-html-elements
