@@ -54,14 +54,14 @@ html_element! {
     }
 }
 
-impl ExpandedChange {
+impl CustomExpandedChange {
     /// TODO: Doc
     pub fn is_expanded(&self) -> bool {
         todo!("Read from js object")
     }
 }
 
-impl SelectedChange {
+impl CustomSelectedChange {
     /// TODO: Doc
     pub fn is_selected(&self) -> bool {
         todo!("Read from js object")

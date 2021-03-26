@@ -120,19 +120,22 @@ macro_rules! custom_event {
             $event_type:ident($event_ty_str:expr)
         }
     ) => { $crate::macros::__private::paste::item! {
+        // We prefix event type with `Custom` so we don't clash with global
+        // events. The method name won't clash as non of the global events
+        // start with `on_`.
         $crate::macros::__private::custom_event!(
-            $(#[$event_meta])*[<$event_type:camel>], $event_ty_str
+            $(#[$event_meta])*[<Custom $event_type:camel>], $event_ty_str
         );
 
         impl [<$tag_name:camel Builder>] {
             /// Set an event handler
-            pub fn [<on_ $event_type>](self, callback: impl FnMut([<$event_type:camel>]) + 'static) -> Self {
+            pub fn [<on_ $event_type>](self, callback: impl FnMut([<Custom $event_type:camel>]) + 'static) -> Self {
                 use $crate::interfaces::event_target::EventTarget;
                 self.on(callback)
             }
         }
 
-        impl $crate::interfaces::event_target::EventTarget<[<$event_type:camel>]> for [<$tag_name:camel Builder>] {}
+        impl $crate::interfaces::event_target::EventTarget<[<Custom $event_type:camel>]> for [<$tag_name:camel Builder>] {}
     }
 }}
 
