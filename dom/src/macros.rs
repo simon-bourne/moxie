@@ -64,8 +64,39 @@ macro_rules! attr_name {
     (type_) => {
         "type"
     };
-    ($attr:ident) => {
-        stringify!($attr)
+    ($attr:ident $(- $attr_tail:ident)*) => {
+        $crate::name_as_str!($attr $(- $attr_tail)*)
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! named_attr_method {
+    (
+        $(#[$outer:meta])*
+        $publicity:vis $attr:ident [$name:expr] (bool)
+    ) => {
+        $(#[$outer])*
+        $publicity fn $attr(self, to_set: bool) -> Self {
+            #[allow(unused)]
+            use $crate::interfaces::element::ElementBuilder;
+            if to_set {
+                self.attribute($name, "")
+            } else {
+                self
+            }
+        }
+    };
+    (
+        $(#[$outer:meta])*
+        $publicity:vis $attr:ident [$name:expr] ($arg:ty)
+    ) => {
+        $(#[$outer])*
+        $publicity fn $attr(self, to_set: $arg) -> Self {
+            #[allow(unused)]
+            use $crate::interfaces::element::ElementBuilder;
+            self.attribute($name, to_set.to_string())
+        }
     };
 }
 
@@ -76,39 +107,27 @@ macro_rules! attr_name {
 macro_rules! attr_method {
     (
         $(#[$outer:meta])*
-        $publicity:vis $attr:ident(bool)
-    ) => {
-        $(#[$outer])*
-        $publicity fn $attr(self, to_set: bool) -> Self {
-            #[allow(unused)]
-            use $crate::interfaces::element::ElementBuilder;
-            if to_set {
-                self.attribute($crate::attr_name!($attr), "")
-            } else {
-                self
-            }
-        }
-    };
-    (
-        $(#[$outer:meta])*
-        $publicity:vis $attr:ident
-    ) => {
+        $publicity:vis $attr:ident $(- $attr_tail:ident)*
+    ) => { $crate::macros::__private::paste::item! {
         $crate::attr_method! {
             $(#[$outer])*
-            $publicity $attr(impl ToString)
+            $publicity
+                $attr $(- $attr_tail)*
+                (impl ToString)
         }
-    };
+    }};
     (
         $(#[$outer:meta])*
-        $publicity:vis $attr:ident($arg:ty)
-    ) => {
-        $(#[$outer])*
-        $publicity fn $attr(self, to_set: $arg) -> Self {
-            #[allow(unused)]
-            use $crate::interfaces::element::ElementBuilder;
-            self.attribute($crate::attr_name!($attr), to_set.to_string())
+        $publicity:vis $attr:ident $(- $attr_tail:ident)* ($($rest:tt)*)
+    ) => { $crate::macros::__private::paste::item! {
+        $crate::named_attr_method! {
+            $(#[$outer])*
+            $publicity
+                [<$attr $(_ $attr_tail)*>]
+                [$crate::attr_name!($attr $(- $attr_tail)*)]
+                ($($rest)*)
         }
-    };
+    }};
 }
 
 #[doc(hidden)]
@@ -153,7 +172,7 @@ macro_rules! element {
         })?
         $(attributes {$(
             $(#[$attr_meta:meta])*
-            $attr:ident $(( $attr_ty:ty ))?
+            $attr:ident $(- $attr_tail:ident)* $(( $attr_ty:ty ))?
         )*})?
         $(custom_events {$(
             $(#[$event_meta:meta])*
@@ -227,7 +246,7 @@ macro_rules! element {
         $(impl [< $name:camel Builder >] {
             $($crate::attr_method! {
                 $(#[$attr_meta])*
-                pub $attr $(($attr_ty))?
+                pub $attr $(- $attr_tail)* $(($attr_ty))?
             })*
         })?
 
